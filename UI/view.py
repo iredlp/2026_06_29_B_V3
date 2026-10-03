@@ -32,6 +32,8 @@ class View(ft.UserControl):
         self._controller.fillDDGeneri()
         self._btnCreaGrafo = ft.ElevatedButton(text="Crea grafo",
                                                 on_click=self._controller.handleCreaGrafo)
+
+       # self._controller.fillDDFilm()
         self._btnStampaInfo = ft.ElevatedButton(text="Stampa Info",
                                                  on_click=self._controller.handleStampaInfo)
 

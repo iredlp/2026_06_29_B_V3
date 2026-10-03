@@ -10,6 +10,9 @@ class Model:
     def getAllGeneri(self):
         return DAO.getAllGeneri()
 
+    def getFilmGrafo(self):
+        return list(self._grafo.nodes)
+
     def creaGrafo(self, genere):
         self._grafo.clear()
         self._idMapF.clear()
@@ -83,4 +86,71 @@ class Model:
         details = [(n,  len(n.attori)) for n in ordered_nodes]
 
         return len(components), largest,film_max_out, max_out, details
+
+        # RICORSIONEEE
+
+    def getGruppoFilm(self, start_node, k):
+        self._best_path = []
+        self._best_score = -1
+
+        # Il percorso parziale parte con il nodo selezionato
+        parziale = [start_node]
+        self._ricorsione(parziale, k)
+
+        return self._best_path, self._best_score
+
+    def _ricorsione(self, parziale, k):
+
+        if len(parziale) == k:
+            score = sum(len(a.movies) for a in parziale)
+
+            if score > self._best_score:
+                self._best_score = score
+                self._best_group = list(parziale)
+
+            return
+        candidati = set()
+
+        for actor in parziale:
+            candidati.update(self._grafo.successors(actor))
+            candidati.update(self._grafo.predecessors(actor))
+
+        # provo solo i candidati adiacenti a qualcuno del gruppo
+        for candidato in candidati:
+
+            if candidato in parziale:
+                continue
+
+            # conto quanti attori già nel gruppo sono adiacenti
+            contatti = 0
+
+            for actor in parziale:
+                if (self._grafo.has_edge(actor, candidato) or
+                        self._grafo.has_edge(candidato, actor)):
+                    contatti += 1
+
+                # for attore in parziale:
+            # if (self._grafo.has_edge(attore, candidato) or
+            #  self._grafo.has_edge(candidato, attore)):
+            # contatti += 1
+
+            # deve essere collegato ad ESATTAMENTE UN attore
+            if contatti == 1:
+                parziale.append(candidato)
+                # Chiamata ricorsiva passando il nuovo arco come riferimento
+                self._ricorsione(parziale, k)
+                # BACKTRACKING: annullo l'ultima mossa
+                parziale.pop()
+
+    def _score(self, parziale):
+        # esplora la soluz parzila ed aggiunge i pesi
+        score = 0
+        for actor in parziale:
+            score += len(actor.movies)
+        return score
+
+
+
+
+
 

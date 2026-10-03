@@ -37,6 +37,9 @@ class Controller:
             self._view._txt_result.controls.append(
                 ft.Text(f"Grafo creato con successo!\nNumero vertici: {n_nodes}\nNumero archi: {n_edges}", color="green"))
 
+            # RIEMPIO IL DROPDOWN DEI FILM DEL GRAFO
+            self.fillDDFilm()
+
         except Exception as ex:
             self._view._txt_result.controls.append(
                 ft.Text(f"Errore durante la creazione del grafo: {ex}", color="red")
@@ -58,7 +61,58 @@ class Controller:
                 ft.Text(f"{titolo}: {numero_attori} attori"))
         self._view.update_page()
 
+    def fillDDFilm(self):
+        try:
+
+            film= self._model.getFilmGrafo()
+            for y in film:
+                self._view._ddMovie.options.append(ft.dropdown.Option(y.title))
+                   # key=actor.id,
+                  #  text=actor.name))
+            self._view.update_page()
+
+        except Exception as ex:
+            self._view._txt_result.controls.append(ft.Text(f"Errore nel recupero dei film: {ex}", color="red") )
+            self._view.update_page()
+
     def handleTrovaSelezione(self, e):
-        pass
+        self._view._txt_result.controls.clear()
+        k = self._view._txtInN.value
+        # qui dovremmo fare i solti controlli sulla validità
+
+        try:
+            kInt = int(k)
+        except Exception as ex:
+            self._view._txt_result.controls.append(
+                ft.Text(f"Errore ! devi inserire un intero per procedere: {ex}", color="red")
+            )
+            self._view.update_page()
+            return
+        if kInt <= 0:
+            self._view.create_alert(
+                "N deve essere un intero positivo.",  color="red"   )
+            return
+
+        # recupero l'attore selezionato dal Dropdown
+        start_node = self._model._idMapF[self._view._ddMovie.value]
+
+        if self._view._ddMovie.value is None:
+            self._view.create_alert("Selezionare prima un FILM di partenza.", color="red")
+            return
+
+        listFilm, bestScore = self._model.getGruppoFilm(start_node, kInt)
+
+        if listFilm is None:
+            self._view._txt_result.controls.clear()
+            self._view._txt_result.controls.append(ft.Text(
+                f"Non ci sono abbastanza comoonenti connesse per trovare N film", color="red"))
+            return
+        self._view._txt_result.controls.clear()
+        self._view._txt_result.controls.append(ft.Text(
+            f" Di seguito il Gruppo di N film ADIACENTI, massimizzando il numero di film:", color="green"))
+        for p in listFilm:
+            self._view._txt_result.controls.append(ft.Text(p))
+        self._view.update_page()
+
 
     
