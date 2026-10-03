@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Optional, Set
 
 @dataclass
@@ -7,6 +8,8 @@ class Movie:
     title: str
     year: Optional[int]
     avg_rating: Optional[float]
+
+    attori: list = field(default_factory=list)
 
 
     def __hash__(self):
